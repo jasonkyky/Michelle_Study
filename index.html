@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Congruence Flash Cards</title>
+<style>
+:root{
+  --bg:#f5f2ea;--card:#ffffff;--ink:#1e2330;--muted:#5d6475;--line:#d8d2c3;--soft:#efebe1;
+  --accent:#2f6fde;--accent2:#e8743b;--good:#1d9a60;--warn:#d64545;
+  --shape:rgba(47,111,222,.14);--shape2:rgba(232,116,59,.18);--ghost:rgba(120,120,120,.10);
+  --g1:#dce8ff;--g2:#ffe3d3;--g3:#dcf3e6;--g4:#f3e0f7;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15171d;--card:#1f232c;--ink:#eef0f5;--muted:#a3a9b8;--line:#3a3f4c;--soft:#2a2f3a;
+    --accent:#6a9bff;--accent2:#ff9a62;--good:#45c98a;--warn:#ff6b6b;
+    --shape:rgba(106,155,255,.18);--shape2:rgba(255,154,98,.20);--ghost:rgba(200,200,200,.08);
+    --g1:#27375a;--g2:#4d3326;--g3:#21412f;--g4:#43294a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15171d;--card:#1f232c;--ink:#eef0f5;--muted:#a3a9b8;--line:#3a3f4c;--soft:#2a2f3a;
+  --accent:#6a9bff;--accent2:#ff9a62;--good:#45c98a;--warn:#ff6b6b;
+  --shape:rgba(106,155,255,.18);--shape2:rgba(255,154,98,.20);--ghost:rgba(200,200,200,.08);
+  --g1:#27375a;--g2:#4d3326;--g3:#21412f;--g4:#43294a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header,main{max-width:800px;margin:0 auto;padding:0 16px}
+header{padding-top:22px}
+h1{font-size:1.55rem;margin:0 0 2px;letter-spacing:-.01em}
+.sub{margin:0 0 14px;color:var(--muted);font-size:.95rem}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
+.chips,.tools{display:flex;flex-wrap:wrap;gap:6px}
+button{font:inherit;font-size:.92rem;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+.progress{display:flex;align-items:center;gap:10px;margin:14px 0 10px;font-size:.85rem;color:var(--muted)}
+.bar{flex:1;height:8px;background:var(--soft);border-radius:9px;overflow:hidden}
+.bar span{display:block;height:100%;width:0;background:var(--good);transition:width .3s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 22px 20px;min-height:380px;box-shadow:0 6px 24px rgba(0,0,0,.06);position:relative;cursor:pointer;outline:none;border-top:6px solid var(--accent)}
+.card.back{border-top-color:var(--good)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--accent)}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:var(--g1);color:var(--ink)}
+.card.back .badge{background:var(--g3)}
+.topic{float:right;font-size:.8rem;color:var(--muted)}
+.card h2{font-size:1.35rem;margin:14px 0 8px;line-height:1.3}
+.card h3{font-size:1.05rem;margin:16px 0 6px}
+.card p{margin:8px 0}
+.hint{color:var(--muted);font-style:italic}
+.big{font-size:1.15rem}
+.key{background:var(--soft);border-left:4px solid var(--accent);padding:10px 14px;border-radius:8px;margin:10px 0}
+.card ul{padding-left:22px;margin:8px 0}
+.card li{margin:3px 0}
+.tap{position:absolute;right:18px;bottom:12px;font-size:.78rem;color:var(--muted)}
+.viz{cursor:default;margin:12px 0 4px;background:var(--soft);border-radius:12px;padding:10px}
+.viz svg{display:block;width:100%;max-width:520px;height:auto;margin:0 auto;touch-action:none;user-select:none}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:center;margin-top:8px;font-size:.9rem}
+.ctrl label{display:flex;align-items:center;gap:6px}
+.ctrl input[type=range]{width:120px;accent-color:var(--accent)}
+.ctrl .v{min-width:38px;font-variant-numeric:tabular-nums;font-weight:600}
+.cap{text-align:center;margin-top:8px;font-size:.95rem;min-height:1.5em}
+.cap b{color:var(--accent)}
+.ok{color:var(--good);font-weight:700}
+.no{color:var(--warn);font-weight:700}
+.meas{display:flex;flex-direction:column;gap:6px;margin-top:8px;font-size:.85rem}
+.meas>div{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.meas>div>b:first-child{min-width:72px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:7px;padding:2px 7px;font-variant-numeric:tabular-nums}
+.chip.g1{background:var(--g1)}.chip.g2{background:var(--g2)}.chip.g3{background:var(--g3)}.chip.g4{background:var(--g4)}
+.note{font-size:.8rem;color:var(--muted);text-align:center}
+.steps li{transition:opacity .3s}
+.steps li.hide{opacity:.15}
+table{border-collapse:collapse;width:100%;font-size:.88rem;margin-top:8px}
+th,td{border:1px solid var(--line);padding:6px 6px;text-align:center}
+th{background:var(--soft)}
+td:first-child{text-align:left;font-weight:600}
+.rate{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.rate button{font-weight:600}
+.rate .k{border-color:var(--good);color:var(--good)}
+.rate .l{border-color:var(--accent2);color:var(--accent2)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 30px}
+#count{color:var(--muted);font-size:.9rem}
+.found{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+.found span{font-size:.82rem;border:1px dashed var(--line);border-radius:999px;padding:2px 10px;color:var(--muted)}
+.found span.got{border-style:solid;border-color:var(--good);color:var(--good);font-weight:700}
+.shapename{font-size:1.2rem;font-weight:700;text-align:center;margin-top:6px}
+/* svg */
+.shape{fill:var(--shape);stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+.shape2{fill:var(--shape2);stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+.nofill{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+.ghost{fill:var(--ghost);stroke:var(--muted);stroke-width:2;stroke-dasharray:6 5}
+.fillonly{fill:var(--shape);stroke:none}.fillonly2{fill:var(--shape2);stroke:none}
+.mark{stroke:var(--ink);stroke-width:1.8;fill:none;stroke-linecap:round}
+.arc{stroke:var(--muted);stroke-width:1.2;fill:none}
+.arcA{stroke:var(--accent);stroke-width:2.2;fill:none}
+.arcB{stroke:var(--accent2);stroke-width:2.2;fill:none}
+.diag{stroke:var(--accent2);stroke-width:1.8;stroke-dasharray:6 4}
+.diagS{stroke:var(--ink);stroke-width:2}
+.guide{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:3 4}
+.ray{stroke:var(--ink);stroke-width:2}
+.hl{stroke:var(--accent2);stroke-width:6;stroke-linecap:round;opacity:.85}
+.hlw{fill:var(--accent2);opacity:.55}
+.dot{fill:var(--ink)}
+.lbl{font:700 15px system-ui,sans-serif;fill:var(--ink)}
+.val{font:600 11.5px system-ui,sans-serif;fill:var(--muted)}
+.sm{font:600 12px system-ui,sans-serif;fill:var(--ink)}
+.grid circle{fill:var(--line)}
+.handle{fill:var(--accent);stroke:var(--card);stroke-width:3;cursor:grab}
+.handle:active{cursor:grabbing}
+.node rect{fill:var(--card);stroke:var(--line);stroke-width:1.5;rx:8}
+.node text{font:600 13px system-ui,sans-serif;fill:var(--ink)}
+.node{cursor:pointer}
+.node.on rect{fill:var(--g1);stroke:var(--accent);stroke-width:2.5}
+.node.me rect{fill:var(--accent);stroke:var(--accent)}
+.node.me text{fill:#fff}
+.edgeT{stroke:var(--line);stroke-width:2}
+.edgeT.on{stroke:var(--accent)}
+.empty{text-align:center;padding:60px 10px}
+@media (max-width:520px){.card{padding:18px 16px}.card h2{font-size:1.18rem}.ctrl input[type=range]{width:96px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Congruent Triangles &amp; Quadrilaterals</h1>
+  <p class="sub">Year 8 flash cards · tap the card (or press Space) to flip · ← → to move</p>
+  <div class="toolbar">
+    <div class="chips" id="chips">
+      <button data-f="all" class="on">All</button>
+      <button data-f="tri">Triangles</button>
+      <button data-f="quad">Quadrilaterals</button>
+      <button data-f="prac">Practice</button>
+    </div>
+    <div class="tools">
+      <button id="shuffle">🔀 Shuffle</button>
+      <button id="review">↻ Tricky ones only</button>
+      <button id="resetp">Reset</button>
+    </div>
+  </div>
+  <div class="progress"><div class="bar"><span id="bar"></span></div><span id="ptext"></span></div>
+</header>
+<main>
+  <div id="card" class="card" tabindex="0"></div>
+  <nav class="nav">
+    <button id="prev">← Prev</button>
+    <span id="count"></span>
+    <button id="flip" class="primary">Flip ⟲</button>
+    <button id="next">Next →</button>
+  </nav>
+</main>
+
+<script>
+/* ---------- geometry helpers ---------- */
+const NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);if(attrs)for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function text(parent,x,y,s,cls){const t=el('text',{x:x.toFixed(1),y:y.toFixed(1),class:cls||'lbl','text-anchor':'middle','dominant-baseline':'central'},parent);t.textContent=s;return t;}
+const sub=(a,b)=>({x:a.x-b.x,y:a.y-b.y}),add=(a,b)=>({x:a.x+b.x,y:a.y+b.y}),mul=(a,k)=>({x:a.x*k,y:a.y*k});
+const len=v=>Math.hypot(v.x,v.y),norm=v=>{const l=len(v)||1;return{x:v.x/l,y:v.y/l}},dist=(a,b)=>len(sub(a,b));
+const cross=(a,b)=>a.x*b.y-a.y*b.x,dot=(a,b)=>a.x*b.x+a.y*b.y,mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+const DEG=180/Math.PI;
+function angleAt(P,Q,R){const u=sub(P,Q),v=sub(R,Q);const d=(len(u)*len(v))||1;return Math.acos(Math.max(-1,Math.min(1,dot(u,v)/d)))*DEG;}
+function centroid(p){return{x:p.reduce((s,q)=>s+q.x,0)/p.length,y:p.reduce((s,q)=>s+q.y,0)/p.length};}
+function ptsStr(p){return p.map(q=>q.x.toFixed(1)+','+q.y.toFixed(1)).join(' ');}
+function rot(p,deg,c){c=c||{x:0,y:0};const t=deg/DEG,co=Math.cos(t),si=Math.sin(t),dx=p.x-c.x,dy=p.y-c.y;return{x:c.x+dx*co-dy*si,y:c.y+dx*si+dy*co};}
+function placeAt(p,c){const g=centroid(p);return p.map(q=>({x:q.x-g.x+c.x,y:q.y-g.y+c.y}));}
+function centerBox(p,c){const xs=p.map(q=>q.x),ys=p.map(q=>q.y);const cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2;return p.map(q=>({x:q.x-cx+c.x,y:q.y-cy+c.y}));}
+function xform(p,flip,deg){const g=centroid(p);return p.map(q=>{let r={x:q.x-g.x,y:q.y-g.y};if(flip)r.x=-r.x;return rot(r,deg);});}
+function inter(p1,p2,p3,p4){const d1=sub(p2,p1),d2=sub(p4,p3),den=cross(d1,d2);if(Math.abs(den)<1e-9)return null;const w=sub(p3,p1);const t=cross(w,d2)/den,u=cross(w,d1)/den;return{x:p1.x+d1.x*t,y:p1.y+d1.y*t,t,u};}
+const crosses=(a,b,c,d)=>{const X=inter(a,b,c,d);return X&&X.t>0.001&&X.t<0.999&&X.u>0.001&&X.u<0.999;};
+function groups(v,tol){const res=v.map(()=>0),used=v.map(()=>false);let g=0;for(let i=0;i<v.length;i++){if(used[i])continue;const m=[i];for(let j=i+1;j<v.length;j++)if(!used[j]&&Math.abs(v[i]-v[j])<=tol)m.push(j);if(m.length>1){g++;m.forEach(k=>{used[k]=true;res[k]=g;});}}return res;}
+function mkSvg(host,w,h){const s=el('svg',{viewBox:`0 0 ${w} ${h}`,role:'img'});host.appendChild(s);return s;}
+function svgPt(svg,e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse());}
+function div(host,cls,html){const d=document.createElement('div');d.className=cls;if(html)d.innerHTML=html;host.appendChild(d);return d;}
+
+function arcD(Q,u1,u2,r,reflex){const a=add(Q,mul(u1,r)),b=add(Q,mul(u2,r));let s=cross(u1,u2)>0?1:0,large=0;if(reflex){s=1-s;large=1;}return{a,b,s,large,d:`M${a.x.toFixed(1)},${a.y.toFixed(1)} A${r},${r} 0 ${large} ${s} ${b.x.toFixed(1)},${b.y.toFixed(1)}`};}
+function arcs(g,Q,u1,u2,r,n,reflex,cls){for(let i=0;i<n;i++)el('path',{d:arcD(Q,u1,u2,r+i*4,reflex).d,class:cls||'mark'},g);}
+function rightMark(g,Q,u1,u2,s){const a=add(Q,mul(u1,s)),b=add(Q,mul(u2,s)),c=add(a,mul(u2,s));el('path',{d:`M${a.x},${a.y} L${c.x},${c.y} L${b.x},${b.y}`,class:'mark'},g);}
+function ticks(g,a,b,n){const m=mid(a,b),d=norm(sub(b,a)),p={x:-d.y,y:d.x};for(let i=0;i<n;i++){const o=(i-(n-1)/2)*5,c=add(m,mul(d,o));el('line',{x1:c.x+p.x*6,y1:c.y+p.y*6,x2:c.x-p.x*6,y2:c.y-p.y*6,class:'mark'},g);}}
+function arrows(g,a,b,n,dir){const p={x:-dir.y,y:dir.x};const base=add(a,mul(sub(b,a),0.27));for(let i=0;i<n;i++){const c=add(base,mul(dir,i*6-((n-1)*3)));const t=add(c,mul(dir,3)),l=add(sub(c,mul(dir,3)),mul(p,5)),r=sub(sub(c,mul(dir,3)),mul(p,5));el('path',{d:`M${l.x},${l.y} L${t.x},${t.y} L${r.x},${r.y}`,class:'mark'},g);}}
+
+/* Draw a polygon with labels and marks. Returns measurements. */
+function drawPoly(svg,pts,o){
+  o=o||{};const n=pts.length,g=el('g',{},svg),names=o.names||[],unit=o.unit||20,m=o.marks||{},hl=o.hl||{};
+  const C=centroid(pts);let area=0;for(let i=0;i<n;i++)area+=cross(pts[i],pts[(i+1)%n]);
+  const I={sides:[],angles:[],reflex:[],u1:[],u2:[],bis:[],r:[],area:Math.abs(area)/2};
+  for(let i=0;i<n;i++)I.sides[i]=dist(pts[i],pts[(i+1)%n]);
+  for(let i=0;i<n;i++){
+    const P=pts[(i-1+n)%n],Q=pts[i],R=pts[(i+1)%n],u1=norm(sub(P,Q)),u2=norm(sub(R,Q)),a=angleAt(P,Q,R);
+    const t=cross(sub(Q,P),sub(R,Q)),rf=n>3&&t*area<0;let b=add(u1,u2);b=len(b)<1e-6?{x:-u1.y,y:u1.x}:norm(b);if(rf)b=mul(b,-1);
+    I.angles[i]=rf?360-a:a;I.reflex[i]=rf;I.u1[i]=u1;I.u2[i]=u2;I.bis[i]=b;
+    I.r[i]=Math.max(11,Math.min(o.arcR||22,0.3*Math.min(I.sides[i],I.sides[(i-1+n)%n])));
+  }
+  el('polygon',{points:ptsStr(pts),class:o.fill||'shape'},g);
+  if(hl.angle!=null){const i=hl.angle,Q=pts[i],r=I.r[i]+9,A=arcD(Q,I.u1[i],I.u2[i],r,I.reflex[i]);el('path',{d:`M${Q.x},${Q.y} L${A.a.x},${A.a.y} A${r},${r} 0 ${A.large} ${A.s} ${A.b.x},${A.b.y} Z`,class:'hlw'},g);}
+  if(o.diagonals&&n===4){
+    el('line',{x1:pts[0].x,y1:pts[0].y,x2:pts[2].x,y2:pts[2].y,class:'diag'},g);
+    el('line',{x1:pts[1].x,y1:pts[1].y,x2:pts[3].x,y2:pts[3].y,class:'diag'},g);
+    const X=inter(pts[0],pts[2],pts[1],pts[3]);
+    if(X&&X.t>0&&X.t<1&&X.u>0&&X.u<1){I.O=X;
+      const ua=norm(sub(pts[0],X)),ub=norm(sub(pts[1],X));
+      if(Math.abs(dot(ua,ub))<0.001)rightMark(g,X,ua,ub,8);
+      el('circle',{cx:X.x,cy:X.y,r:3,class:'dot'},g);
+      const off=norm(add(norm(sub(pts[0],X)),norm(sub(pts[3],X))));text(g,X.x+off.x*14,X.y+off.y*14,'O','sm');}
+  }
+  if(hl.side!=null){const i=hl.side,a=pts[i],b=pts[(i+1)%n];el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'hl'},g);}
+  let tk=m.sides;if(!tk&&o.auto)tk=groups(I.sides,0.05);
+  if(tk)tk.forEach((c,i)=>{if(c)ticks(g,pts[i],pts[(i+1)%n],c);});
+  if(o.auto&&n===4){let cnt=0;[[0,2],[1,3]].forEach(([i,j])=>{const d1=norm(sub(pts[(i+1)%4],pts[i])),d2=norm(sub(pts[(j+1)%4],pts[j]));if(Math.abs(cross(d1,d2))<1e-4){cnt++;arrows(g,pts[i],pts[(i+1)%4],cnt,d1);arrows(g,pts[j],pts[(j+1)%4],cnt,d1);}});}
+  const am=m.angles||[];
+  for(let i=0;i<n;i++){let mk=am[i];const Q=pts[i];
+    if((mk==null||mk===0)&&o.auto&&!I.reflex[i]&&Math.abs(I.angles[i]-90)<0.05)mk='r';
+    if(mk==='r')rightMark(g,Q,I.u1[i],I.u2[i],Math.min(11,I.r[i]*0.7));
+    else if(mk>0)arcs(g,Q,I.u1[i],I.u2[i],I.r[i],mk,I.reflex[i],o.arcCls?o.arcCls[i]:'mark');
+    else if(o.angleVals||(o.angleText&&o.angleText[i]))arcs(g,Q,I.u1[i],I.u2[i],I.r[i],1,I.reflex[i],'arc');
+  }
+  for(let i=0;i<n;i++){const Q=pts[i],b=I.bis[i];
+    if(names[i])text(g,Q.x-b.x*16,Q.y-b.y*16,names[i],'lbl');
+    let at=o.angleText&&o.angleText[i]!=null?o.angleText[i]:(o.angleVals?Math.round(I.angles[i])+'°':null);
+    if(at)text(g,Q.x+b.x*(I.r[i]+15),Q.y+b.y*(I.r[i]+15),at,'val');
+    let st=o.sideText&&o.sideText[i]!=null?o.sideText[i]:(o.lengths?(I.sides[i]/unit).toFixed(1):null);
+    if(st){const a=pts[i],c=pts[(i+1)%n],M=mid(a,c),d=norm(sub(c,a));let nr={x:-d.y,y:d.x};if(dot(nr,sub(M,C))<0)nr=mul(nr,-1);text(g,M.x+nr.x*13,M.y+nr.y*13,st,'val');}
+  }
+  return I;
+}
+function gridDots(svg,w,h){const g=el('g',{class:'grid'},svg);for(let x=20;x<w;x+=20)for(let y=20;y<h;y+=20)el('circle',{cx:x,cy:y,r:1.4},g);}
+function handles(svg,pts){pts.forEach((p,i)=>el('circle',{cx:p.x,cy:p.y,r:11,class:'handle','data-i':i},svg));}
+function dragSvg(svg,pts,draw,W,H){let d=-1;
+  svg.addEventListener('pointerdown',e=>{const i=e.target.getAttribute&&e.target.getAttribute('data-i');if(i==null)return;d=+i;svg.setPointerCapture(e.pointerId);e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(d<0)return;const p=svgPt(svg,e);let x=Math.round(p.x/20)*20,y=Math.round(p.y/20)*20;x=Math.max(20,Math.min(W-20,x));y=Math.max(20,Math.min(H-20,y));
+    if(pts[d].x===x&&pts[d].y===y)return;if(pts.some((q,j)=>j!==d&&q.x===x&&q.y===y))return;pts[d]={x,y};draw();});
+  const end=()=>{d=-1;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+function slider(host,label,min,max,step,val,unit,cb){const l=document.createElement('label');l.innerHTML=`${label} <input type="range" min="${min}" max="${max}" step="${step}" value="${val}"><span class="v"></span>`;host.appendChild(l);const inp=l.querySelector('input'),v=l.querySelector('.v');const upd=()=>{v.textContent=(+inp.value)+(unit||'');cb(+inp.value);};inp.addEventListener('input',upd);v.textContent=val+(unit||'');return inp;}
+function btn(host,label,cb,cls){const b=document.createElement('button');b.textContent=label;if(cls)b.className=cls;b.addEventListener('click',e=>{e.stopPropagation();cb(b);});host.appendChild(b);return b;}
+const chip=(l,v,g)=>`<span class="chip${g?' g'+((g-1)%4+1):''}">${l} <b>${v}</b></span>`;
+
+/* ---------- quadrilateral generators (units) ---------- */
+const GEN={
+  parallelogram:p=>{const t=p.ang/DEG;return[{x:0,y:0},{x:p.a,y:0},{x:p.a+p.b*Math.cos(t),y:-p.b*Math.sin(t)},{x:p.b*Math.cos(t),y:-p.b*Math.sin(t)}];},
+  rectangle:p=>GEN.parallelogram({a:p.a,b:p.b,ang:90}),
+  rhombus:p=>GEN.parallelogram({a:p.s,b:p.s,ang:p.ang}),
+  square:p=>GEN.parallelogram({a:p.s,b:p.s,ang:90}).map(q=>rot(q,-(p.rot||0))),
+  trapezium:p=>[{x:0,y:0},{x:p.a,y:0},{x:p.off+p.b,y:-p.h},{x:p.off,y:-p.h}],
+  kite:p=>[{x:0,y:-p.t},{x:p.w/2,y:0},{x:0,y:p.bt},{x:-p.w/2,y:0}]
+};
+function genPts(type,p,c){return centerBox(GEN[type](p).map(q=>mul(q,20)),c);}
+
+/* ---------- configs ---------- */
+const BASE=[{x:-60,y:40},{x:60,y:40},{x:-20,y:-50}];
+const RBASE=[{x:-40,y:-45},{x:55,y:35},{x:-40,y:35}];
+const CFG={
+  sss:{base:BASE,flip:true,rot:25,marks:{sides:[1,2,3]},steps:[{side:0},{side:1},{side:2}],labels:['Side','Side','Side'],done:'3 pairs of equal sides → △ABC ≅ △PQR <b>(SSS)</b>'},
+  sas:{base:BASE,rot:160,marks:{sides:[1,2,0],angles:[0,1,0]},steps:[{side:0},{angle:1},{side:1}],labels:['Side','Angle — sitting between the two sides','Side'],done:'Side, included angle, side → △ABC ≅ △PQR <b>(SAS)</b>'},
+  aas:{base:BASE,flip:true,rot:-30,marks:{sides:[0,1,0],angles:[1,2,0]},steps:[{angle:0},{angle:1},{side:1}],labels:['Angle','Angle','Side (in the matching position)'],done:'Two angles and a matching side → △ABC ≅ △PQR <b>(AAS)</b>'},
+  rhs:{base:RBASE,rot:200,marks:{sides:[2,1,0],angles:[0,0,'r']},steps:[{angle:2},{side:0},{side:1}],labels:['Right angle','Hypotenuse','Side'],done:'Right angle, hypotenuse, side → △ABC ≅ △PQR <b>(RHS)</b>'},
+  p_sas:{base:BASE,flip:true,rot:100,names2:['X','Y','Z'],marks:{sides:[1,0,2],angles:[1,0,0]},steps:[{side:0},{angle:0},{side:2}],labels:['Side','Angle (between them)','Side'],done:'Answer: <b>SAS</b> — ∠A sits between AB and AC.'},
+  p_rhs:{base:RBASE,flip:true,rot:90,names2:['X','Y','Z'],marks:{sides:[2,0,1],angles:[0,0,'r']},steps:[{angle:2},{side:0},{side:2}],labels:['Right angle','Hypotenuse','Side'],done:'Answer: <b>RHS</b> — right angle, hypotenuse and one side.'},
+  p_ssa:{base:BASE,rot:40,names2:['X','Y','Z'],marks:{sides:[1,2,0],angles:[1,0,0]},steps:[{side:0},{side:1},{angle:0}],labels:['Side','Side','Angle — but it is NOT between AB and BC!'],done:'<span class="no">Not enough!</span> This is SSA, which is not a test.'},
+  parallelogram:{type:'parallelogram',params:[{k:'a',l:'Base',min:4,max:9,step:.5,v:7},{k:'b',l:'Side',min:3,max:6,step:.5,v:4},{k:'ang',l:'∠A',min:40,max:140,step:1,v:62,u:'°'}]},
+  rectangle:{type:'rectangle',params:[{k:'a',l:'Length',min:4,max:10,step:.5,v:8},{k:'b',l:'Width',min:2,max:6.5,step:.5,v:4.5}]},
+  rhombus:{type:'rhombus',params:[{k:'s',l:'Side',min:3,max:7,step:.5,v:5},{k:'ang',l:'∠A',min:30,max:150,step:1,v:60,u:'°'}],diag:true},
+  square:{type:'square',params:[{k:'s',l:'Side',min:3,max:7,step:.5,v:5},{k:'rot',l:'Turn',min:0,max:45,step:1,v:10,u:'°'}],diag:true},
+  trapezium:{type:'trapezium',params:[{k:'a',l:'Bottom',min:6,max:12,step:.5,v:10},{k:'b',l:'Top',min:2,max:8,step:.5,v:5},{k:'h',l:'Height',min:3,max:7,step:.5,v:4.5},{k:'off',l:'Slide top',min:-2,max:5,step:.5,v:2}]},
+  kite:{type:'kite',params:[{k:'w',l:'Width',min:4,max:12,step:.5,v:7},{k:'t',l:'Top',min:1,max:4,step:.5,v:2.5},{k:'bt',l:'Bottom',min:3,max:6.5,step:.5,v:6}],diag:true},
+  q_par:{type:'parallelogram',p:{a:7,b:4.5,ang:65},front:['65°','?','?','?'],back:['65°','115°','65°','115°']},
+  q_rect:{type:'rectangle',p:{a:8,b:5},diagonals:true,front:[]},
+  q_rh:{type:'rhombus',p:{s:5.5,ang:70},diagonals:true,front:['70°','?','?','?'],back:['70°','110°','70°','110°']},
+  q_sum:{pts:[{x:70,y:190},{x:290,y:200},{x:260,y:60},{x:110,y:80}],front:['85°','95°','110°','x'],back:['85°','95°','110°','x = 70°']}
+};
+
+/* ---------- interactive diagrams ---------- */
+const found=new Set();
+const VIZ={
+  transform(host){
+    const svg=mkSvg(host,360,230),ctrl=div(host,'ctrl'),cap=div(host,'cap');
+    const base=[{x:40,y:175},{x:140,y:175},{x:60,y:95}],c=centroid(base);
+    const goal={sx:-1,rot:90,tx:190,ty:-10},st={sx:1,rot:0,tx:0,ty:0};let busy=false;
+    const ap=(p,s)=>{let q={x:c.x+(p.x-c.x)*s.sx,y:p.y};q=rot(q,s.rot,c);return{x:q.x+s.tx,y:q.y+s.ty};};
+    const target=base.map(p=>ap(p,goal));
+    const done=()=>Object.keys(goal).every(k=>Math.abs(st[k]-goal[k])<1e-6);
+    function draw(){svg.innerHTML='';const d=done();
+      drawPoly(svg,target,{names:d?[]:['P','Q','R'],fill:'ghost',marks:{sides:[1,2,3]}});
+      drawPoly(svg,base.map(p=>ap(p,st)),{names:['A','B','C'],fill:d?'shape2':'shape',marks:{sides:[1,2,3]}});
+      cap.innerHTML=d?'<span class="ok">✓ Perfect fit!</span> Same shape, same size → <b>△ABC ≅ △PQR</b>':'Use the buttons to move △ABC onto the dashed △PQR.';}
+    function anim(to){if(busy)return;busy=true;const from={...st},t0=performance.now();
+      (function f(now){let k=Math.min(1,(now-t0)/700);k=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;for(const key in to)st[key]=from[key]+(to[key]-from[key])*k;draw();if(k<1)requestAnimationFrame(f);else busy=false;})(t0);}
+    btn(ctrl,'↔ Flip (reflect)',()=>anim({sx:goal.sx}));
+    btn(ctrl,'⟳ Turn (rotate)',()=>anim({rot:goal.rot}));
+    btn(ctrl,'→ Slide (translate)',()=>anim({tx:goal.tx,ty:goal.ty}));
+    btn(ctrl,'Reset',()=>anim({sx:1,rot:0,tx:0,ty:0}));
+    draw();
+  },
+  pair(host,cfgName,withSteps){
+    const c=CFG[cfgName],svg=mkSvg(host,360,240),n1=['A','B','C'],n2=c.names2||['P','Q','R'];
+    const t1=placeAt(c.base,{x:92,y:122}),t2=placeAt(xform(c.base,c.flip,c.rot),{x:268,y:122});
+    let step=-1;const ctrl=withSteps?div(host,'ctrl'):null,cap=withSteps?div(host,'cap'):null;let b;
+    function capFor(h){if(h.side!=null){const i=h.side,j=(i+1)%3;return `${n1[i]}${n1[j]} = ${n2[i]}${n2[j]}`;}return `∠${n1[h.angle]} = ∠${n2[h.angle]}`;}
+    function draw(){svg.innerHTML='';const h=step>=0&&step<c.steps.length?c.steps[step]:{};
+      drawPoly(svg,t1,{names:n1,marks:c.marks,hl:h});drawPoly(svg,t2,{names:n2,marks:c.marks,hl:h,fill:'shape2'});
+      if(!withSteps)return;
+      if(step<0){cap.innerHTML='Matching marks = equal parts.';b.textContent='▶ Show matching parts';}
+      else if(step<c.steps.length){cap.innerHTML=`<b>${c.labels[step]}:</b> ${capFor(h)}`;b.textContent=`Next part (${step+1}/${c.steps.length})`;}
+      else{cap.innerHTML=c.done;b.textContent='↺ Start again';}}
+    if(withSteps)b=btn(ctrl,'',()=>{step=step>=c.steps.length?-1:step+1;draw();},'primary');
+    draw();
+  },
+  aaa(host){
+    const svg=mkSvg(host,360,240),ctrl=div(host,'ctrl'),cap=div(host,'cap');
+    const base=[{x:-45,y:30},{x:45,y:30},{x:-15,y:-38}];let k=1.4;
+    function draw(){svg.innerHTML='';
+      drawPoly(svg,placeAt(base,{x:90,y:128}),{names:['A','B','C'],angleVals:true,lengths:true});
+      drawPoly(svg,placeAt(base.map(p=>mul(p,k)),{x:255,y:128}),{names:['P','Q','R'],angleVals:true,lengths:true,fill:'shape2'});
+      cap.innerHTML=Math.abs(k-1)<1e-9?'Same angles and same size — these two <i>happen</i> to be congruent. But AAA can\'t promise that!':'Angles match <span class="ok">✓</span> but sides don\'t <span class="no">✗</span> — same shape, different size (these are <b>similar</b>, not congruent).';}
+    slider(ctrl,'Resize △PQR',0.5,1.5,0.05,k,'×',v=>{k=v;draw();});draw();
+  },
+  ssa(host){
+    const svg=mkSvg(host,360,250),ctrl=div(host,'ctrl'),cap=div(host,'cap');
+    const S=28,A={x:30,y:215},t=35/DEG,B={x:A.x+8*S*Math.cos(t),y:A.y-8*S*Math.sin(t)};
+    const dx=Math.sqrt(25-Math.pow(8*Math.sin(t),2)),x1=8*Math.cos(t)-dx,x2=8*Math.cos(t)+dx;
+    const C1={x:A.x+x1*S,y:A.y},C2={x:A.x+x2*S,y:A.y};let mode=1;
+    function tri(C,fill,nm){drawPoly(svg,[A,B,C],{names:['A','B',nm],fill,marks:{angles:[1,0,0],sides:[1,2,0]},sideText:['8','5','AC = '+(dist(A,C)/S).toFixed(1)],angleText:['35°',null,null]});}
+    function draw(){svg.innerHTML='';
+      el('circle',{cx:B.x,cy:B.y,r:5*S,class:'guide'},svg);
+      el('line',{x1:A.x,y1:A.y,x2:350,y2:A.y,class:'guide'},svg);
+      if(mode===1)tri(C1,'shape','C');else if(mode===2)tri(C2,'shape2','C');else{tri(C2,'shape2','C₂');tri(C1,'shape','C₁');}
+      cap.innerHTML=mode===3?'Both triangles have <b>AB = 8, BC = 5, ∠A = 35°</b> — but they are different! So SSA is <span class="no">not</span> a test.':'The dashed circle shows everywhere BC (length 5) could reach. It hits the bottom line in <b>two</b> places.';}
+    const bs=[btn(ctrl,'Triangle 1',()=>set(1)),btn(ctrl,'Triangle 2',()=>set(2)),btn(ctrl,'Show both',()=>set(3))];
+    function set(m){mode=m;bs.forEach((b,i)=>b.classList.toggle('on',i===m-1));draw();}set(1);
+  },
+  tri(host){
+    const W=360,H=260,svg=mkSvg(host,W,H),cap=div(host,'cap');
+    const pts=[{x:60,y:220},{x:300,y:220},{x:140,y:60}];
+    function draw(){svg.innerHTML='';gridDots(svg,W,H);
+      const I=drawPoly(svg,pts,{names:['A','B','C'],auto:true,angleVals:true,lengths:true});handles(svg,pts);
+      if(I.area<1){cap.innerHTML='<span class="no">The points are in a straight line — that\'s not a triangle!</span>';return;}
+      const a=I.angles,s=I.sides,eq=groups(s,0.05),ne=new Set(eq.filter(x=>x)).size;
+      const allEq=eq.every(x=>x===eq[0]&&x>0);
+      const bySide=allEq?'equilateral':(eq.some(x=>x)?'isosceles':'scalene');
+      const byAng=a.some(x=>Math.abs(x-90)<0.05)?'right-angled':(a.some(x=>x>90.05)?'obtuse-angled':'acute-angled');
+      cap.innerHTML=`∠A + ∠B + ∠C = ${Math.round(a[0])}° + ${Math.round(a[1])}° + ${Math.round(a[2])}° = <b>180°</b><br>This is a <b>${bySide}</b>, <b>${byAng}</b> triangle.`;}
+    dragSvg(svg,pts,draw,W,H);draw();
+  },
+  iso(host){
+    const svg=mkSvg(host,360,230),ctrl=div(host,'ctrl'),cap=div(host,'cap');let b=8,h=6;
+    function draw(){svg.innerHTML='';
+      const raw=[{x:0,y:-h},{x:-b/2,y:0},{x:b/2,y:0},{x:0,y:0}].map(q=>mul(q,20));
+      const P=centerBox(raw.slice(0,3),{x:180,y:118});const sh={x:P[0].x-raw[0].x,y:P[0].y-raw[0].y};const M=add(raw[3],sh);
+      const [A,B,C]=P;
+      el('polygon',{points:ptsStr([A,B,M]),class:'fillonly'},svg);el('polygon',{points:ptsStr([A,M,C]),class:'fillonly2'},svg);
+      el('line',{x1:A.x,y1:A.y,x2:M.x,y2:M.y,class:'diag'},svg);
+      const g=el('g',{},svg);ticks(g,B,M,2);ticks(g,M,C,2);rightMark(g,M,norm(sub(C,M)),norm(sub(A,M)),9);
+      drawPoly(svg,[A,B,C],{names:['A','B','C'],fill:'nofill',auto:true,marks:{sides:[1,0,1],angles:[0,1,1]},angleVals:true});
+      text(svg,M.x,M.y+15,'M','lbl');
+      cap.innerHTML='△ABM ≅ △ACM by <b>SSS</b> (AB = AC, BM = CM, AM is shared) → so <b>∠B = ∠C</b> always!';}
+    slider(ctrl,'Base',4,12,.5,b,'',v=>{b=v;draw();});slider(ctrl,'Height',3,8,.5,h,'',v=>{h=v;draw();});draw();
+  },
+  quad(host,cfgName){
+    const c=CFG[cfgName],svg=mkSvg(host,360,255),ctrl=div(host,'ctrl'),meas=div(host,'meas');
+    const p={};c.params.forEach(q=>p[q.k]=q.v);let diag=!!c.diag;
+    function draw(){svg.innerHTML='';const pts=genPts(c.type,p,{x:180,y:128});
+      const I=drawPoly(svg,pts,{names:['A','B','C','D'],auto:true,angleVals:true,lengths:true,diagonals:diag});
+      const N=['A','B','C','D'],sg=groups(I.sides,0.05),ag=groups(I.angles,0.05);
+      let h='<div><b>Sides</b>'+N.map((n,i)=>chip(n+N[(i+1)%4],(I.sides[i]/20).toFixed(1),sg[i])).join('')+'</div>';
+      h+='<div><b>Angles</b>'+N.map((n,i)=>chip('∠'+n,Math.round(I.angles[i])+'°',ag[i])).join('')+'</div>';
+      if(diag&&I.O){const O=I.O,dl=[dist(pts[0],pts[2]),dist(pts[1],pts[3])],hv=[dist(pts[0],O),dist(O,pts[2]),dist(pts[1],O),dist(O,pts[3])];const dg=groups(dl,0.05),hg=groups(hv,0.05);
+        h+='<div><b>Diagonals</b>'+chip('AC',(dl[0]/20).toFixed(1),dg[0])+chip('BD',(dl[1]/20).toFixed(1),dg[1])+'</div>';
+        h+='<div><b>Halves</b>'+['AO','OC','BO','OD'].map((l,i)=>chip(l,(hv[i]/20).toFixed(1),hg[i])).join('')+chip('∠AOB',Math.round(angleAt(pts[0],O,pts[1]))+'°',0)+'</div>';}
+      meas.innerHTML=h+'<div class="note">Same colour = equal. Move the sliders and watch what stays the same!</div>';}
+    c.params.forEach(q=>slider(ctrl,q.l,q.min,q.max,q.step,q.v,q.u||'',v=>{p[q.k]=v;draw();}));
+    const lb=document.createElement('label');lb.innerHTML=`<input type="checkbox" ${diag?'checked':''}> Diagonals`;ctrl.appendChild(lb);
+    lb.querySelector('input').addEventListener('change',e=>{diag=e.target.checked;draw();});draw();
+  },
+  free(host,mode){
+    const W=360,H=260,svg=mkSvg(host,W,H),cap=div(host,'cap');
+    const pts=mode==='sum'?[{x:80,y:200},{x:280,y:220},{x:300,y:80},{x:120,y:60}]:[{x:100,y:200},{x:280,y:220},{x:260,y:80},{x:80,y:60}];
+    const list=['Square','Rectangle','Rhombus','Parallelogram','Trapezium','Kite'];
+    function classify(I){const s=I.sides,eq=(a,b)=>Math.abs(a-b)<0.05;
+      const par=(i,j)=>Math.abs(cross(norm(sub(pts[(i+1)%4],pts[i])),norm(sub(pts[(j+1)%4],pts[j]))))<1e-4;
+      const kite=(eq(s[0],s[1])&&eq(s[2],s[3]))||(eq(s[1],s[2])&&eq(s[3],s[0]));
+      if(I.reflex.some(x=>x))return kite?'Dart (a concave kite)':'Concave quadrilateral';
+      const p1=par(0,2),p2=par(1,3);
+      if(p1&&p2){const allEq=eq(s[0],s[1])&&eq(s[1],s[2])&&eq(s[2],s[3]),right=I.angles.every(a=>Math.abs(a-90)<0.05);return allEq&&right?'Square':right?'Rectangle':allEq?'Rhombus':'Parallelogram';}
+      if(kite)return 'Kite';if(p1||p2)return 'Trapezium';return 'Irregular quadrilateral';}
+    function draw(){svg.innerHTML='';gridDots(svg,W,H);
+      const cx=crosses(pts[0],pts[1],pts[2],pts[3])||crosses(pts[1],pts[2],pts[3],pts[0]);
+      if(cx){drawPoly(svg,pts,{names:['A','B','C','D'],fill:'ghost'});handles(svg,pts);cap.innerHTML='<span class="no">Sides are crossing — drag a corner to untangle it.</span>';return;}
+      if(mode==='sum'){const [A,B,C,D]=pts,s1=cross(sub(C,A),sub(B,A)),s2=cross(sub(C,A),sub(D,A));
+        const useAC=s1*s2<0,T1=useAC?[A,B,C]:[A,B,D],T2=useAC?[A,C,D]:[B,C,D];
+        el('polygon',{points:ptsStr(T1),class:'fillonly'},svg);el('polygon',{points:ptsStr(T2),class:'fillonly2'},svg);
+        const P=useAC?[A,C]:[B,D];el('line',{x1:P[0].x,y1:P[0].y,x2:P[1].x,y2:P[1].y,class:'diag'},svg);
+        const I=drawPoly(svg,pts,{names:['A','B','C','D'],fill:'nofill',angleVals:true});handles(svg,pts);
+        cap.innerHTML=`${I.angles.map(a=>Math.round(a)+'°').join(' + ')} = <b>360°</b><br>The dashed diagonal makes <b>2 triangles</b>: 2 × 180° = 360°`;}
+      else{const I=drawPoly(svg,pts,{names:['A','B','C','D'],auto:true,angleVals:true});handles(svg,pts);
+        const name=classify(I);if(list.includes(name))found.add(name);
+        cap.innerHTML=`<div class="shapename">${name}</div><div class="found">${list.map(n=>`<span class="${found.has(n)?'got':''}">${found.has(n)?'✓ ':''}${n}</span>`).join('')}</div>`;}
+    }
+    dragSvg(svg,pts,draw,W,H);draw();
+  },
+  tree(host){
+    const svg=mkSvg(host,360,300),cap=div(host,'cap');
+    const N={Quadrilateral:[180,28],Trapezium:[95,92],Kite:[275,92],Parallelogram:[95,156],Rectangle:[65,220],Rhombus:[215,220],Square:[140,276]};
+    const P={Trapezium:['Quadrilateral'],Kite:['Quadrilateral'],Parallelogram:['Trapezium'],Rectangle:['Parallelogram'],Rhombus:['Parallelogram','Kite'],Square:['Rectangle','Rhombus']};
+    const D={Quadrilateral:'Any shape with 4 straight sides. Its angles add to 360°.',Trapezium:'At least one pair of parallel sides.',Kite:'Two pairs of equal sides that sit next to each other.',Parallelogram:'Both pairs of opposite sides are parallel (and equal).',Rectangle:'A parallelogram with four right angles.',Rhombus:'A parallelogram with four equal sides.',Square:'Four equal sides AND four right angles.'};
+    const anc=k=>{const s=new Set();(function go(x){(P[x]||[]).forEach(p=>{s.add(p);go(p);});})(k);return s;};
+    let sel='Square';
+    function draw(){svg.innerHTML='';const A=anc(sel);
+      for(const k in P)P[k].forEach(p=>{const on=(k===sel||A.has(k))&&A.has(p);el('line',{x1:N[k][0],y1:N[k][1],x2:N[p][0],y2:N[p][1],class:'edgeT'+(on?' on':'')},svg);});
+      for(const k in N){const g=el('g',{class:'node'+(k===sel?' me':A.has(k)?' on':'')},svg);el('rect',{x:N[k][0]-56,y:N[k][1]-15,width:112,height:30,rx:8},g);text(g,N[k][0],N[k][1],k,'');g.addEventListener('click',e=>{e.stopPropagation();sel=k;draw();});}
+      const list=[...A].map(x=>x.toLowerCase());
+      cap.innerHTML=`<b>${sel}:</b> ${D[sel]}`+(list.length?`<br>So a ${sel.toLowerCase()} is also a: ${list.join(', ')}.`:'');}
+    draw();div(host,'note','Tap any shape name.');
+  },
+  proof(host){
+    const svg=mkSvg(host,360,200),ctrl=div(host,'ctrl');
+    const steps=['Draw diagonal AC. It splits ABCD into △ABC and △CDA.','AB ∥ DC, so ∠BAC = ∠DCA (alternate angles).','AD ∥ BC, so ∠BCA = ∠DAC (alternate angles).','AC = CA (it\'s a shared side).','So △ABC ≅ △CDA (AAS). Matching sides are equal: AB = CD and BC = DA ✓'];
+    const ol=document.createElement('ol');ol.className='steps';steps.forEach(s=>{const li=document.createElement('li');li.textContent=s;li.className='hide';ol.appendChild(li);});host.appendChild(ol);
+    let k=0;const pts=genPts('parallelogram',{a:8,b:5,ang:60},{x:180,y:100});const [A,B,C,D]=pts;
+    function draw(){svg.innerHTML='';
+      if(k>=1){el('polygon',{points:ptsStr([A,B,C]),class:'fillonly'},svg);el('polygon',{points:ptsStr([A,C,D]),class:'fillonly2'},svg);}
+      const g=el('g',{},svg);
+      if(k>=4)el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,class:'hl'},g);
+      drawPoly(svg,pts,{names:['A','B','C','D'],fill:'nofill',auto:false,marks:k>=5?{sides:[1,2,1,2]}:{}});
+      const ag=el('g',{},svg);arrows(ag,A,B,1,norm(sub(B,A)));arrows(ag,D,C,1,norm(sub(B,A)));arrows(ag,B,C,2,norm(sub(C,B)));arrows(ag,A,D,2,norm(sub(C,B)));
+      if(k>=1)el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,class:'diagS'},svg);
+      const u=(P,Q)=>norm(sub(P,Q));
+      if(k>=2){arcs(svg,A,u(B,A),u(C,A),26,1,false,'arcA');arcs(svg,C,u(D,C),u(A,C),26,1,false,'arcA');}
+      if(k>=3){arcs(svg,C,u(B,C),u(A,C),20,2,false,'arcB');arcs(svg,A,u(D,A),u(C,A),20,2,false,'arcB');}
+      [...ol.children].forEach((li,i)=>li.classList.toggle('hide',i>=k));
+      b.textContent=k>=steps.length?'↺ Start again':`▶ Step ${k+1} of ${steps.length}`;}
+    const b=btn(ctrl,'',()=>{k=k>=steps.length?0:k+1;draw();},'primary');draw();
+  },
+  qs(host,cfgName,side){
+    const c=CFG[cfgName],svg=mkSvg(host,360,230);
+    const pts=c.pts?centerBox(c.pts,{x:180,y:115}):genPts(c.type,c.p,{x:180,y:115});
+    drawPoly(svg,pts,{names:['A','B','C','D'],auto:!c.pts,diagonals:c.diagonals,angleText:(side==='back'&&c.back)?c.back:c.front});
+    if(c.pts)div(host,'note','(not drawn to scale)');
+  }
+};
+
+/* ---------- card content ---------- */
+const V=(name,cfg,extra)=>`<div class="viz" data-viz="${name}"${cfg?` data-cfg="${cfg}"`:''}${extra||''}></div>`;
+const CARDS=[
+ {topic:'tri',front:`<h2>What does <u>congruent</u> mean?</h2><p class="hint">Hint: think “same ____ and same ____”.</p>`,
+  back:`<h2>Congruent = exact copies</h2><p class="big">Same <b>shape</b> AND same <b>size</b>.</p><p>You can <b>slide</b>, <b>turn</b> or <b>flip</b> one shape so it sits perfectly on top of the other. Try it:</p>${V('transform')}<div class="key">Symbol: <b>≅</b> means “is congruent to”.</div>`},
+ {topic:'tri',front:`<h2>△ABC ≅ △PQR</h2><p class="big">Which side matches <b>AB</b>? Which angle matches <b>∠C</b>?</p><p class="hint">Hint: look at the order of the letters.</p>`,
+  back:`<h2>Order matters!</h2><p>The letters pair up <b>in order</b>:</p><div class="key big">A ↔ P &nbsp;&nbsp; B ↔ Q &nbsp;&nbsp; C ↔ R</div><p>So <b>AB = PQ</b> and <b>∠C = ∠R</b>. Matching parts are called <b>corresponding</b> parts.</p>${V('pair','sss',' data-steps="1"')}`},
+ {topic:'tri',front:`<h2>To prove two triangles are congruent, do you need to check all 6 parts?</h2><p class="hint">(3 sides + 3 angles)</p>`,
+  back:`<h2>No — just 3 well-chosen parts!</h2><p>There are <b>4 tests</b>:</p><table><tr><th>Test</th><th>What matches</th></tr><tr><td>SSS</td><td>3 sides</td></tr><tr><td>SAS</td><td>2 sides + the angle <b>between</b> them</td></tr><tr><td>AAS</td><td>2 angles + a matching side</td></tr><tr><td>RHS</td><td>Right angle + hypotenuse + 1 side</td></tr></table><div class="key">S = side, A = angle, R = right angle, H = hypotenuse.<br><b>AAA</b> and <b>SSA</b> are NOT tests!</div>`},
+ {topic:'tri',front:`<h2>What is the <b>SSS</b> test?</h2>`,
+  back:`<h2>SSS — Side, Side, Side</h2><p>If all <b>three sides</b> of one triangle equal the three sides of another, the triangles are congruent.</p>${V('pair','sss',' data-steps="1"')}<p class="hint">The little tick marks show which sides are equal (1 tick matches 1 tick, etc.).</p>`},
+ {topic:'tri',front:`<h2>What is the <b>SAS</b> test? What's the catch?</h2>`,
+  back:`<h2>SAS — Side, Angle, Side</h2><p>Two sides and the angle <b>between</b> them (the <i>included</i> angle) are equal.</p>${V('pair','sas',' data-steps="1"')}<div class="key">The catch: the angle MUST be sandwiched between the two sides.</div>`},
+ {topic:'tri',front:`<h2>What is the <b>AAS</b> test?</h2>`,
+  back:`<h2>AAS — Angle, Angle, Side</h2><p>Two angles and one side in the <b>matching position</b> are equal.</p>${V('pair','aas',' data-steps="1"')}<p class="hint">Why it works: if two angles match, the third must too (they all add to 180°). <b>ASA</b> (side between the two angles) works for the same reason.</p>`},
+ {topic:'tri',front:`<h2>What is the <b>RHS</b> test? When can you use it?</h2>`,
+  back:`<h2>RHS — Right angle, Hypotenuse, Side</h2><p>Only for <b>right-angled</b> triangles. Both have a right angle, the same hypotenuse, and one other equal side.</p>${V('pair','rhs',' data-steps="1"')}<div class="key"><b>Hypotenuse</b> = the longest side, opposite the right angle.</div>`},
+ {topic:'tri',front:`<h2>If two triangles have all 3 angles equal (AAA), are they congruent?</h2>`,
+  back:`<h2>Not always! AAA is not a test</h2><p>Same angles only means same <b>shape</b> — the size can be different. Drag the slider:</p>${V('aaa')}`},
+ {topic:'tri',front:`<h2>Why is <b>SSA</b> (two sides + an angle that's not between them) NOT a test?</h2>`,
+  back:`<h2>Because it can make two different triangles</h2>${V('ssa')}<div class="key">Remember: for SAS, the angle must be <b>between</b> the two sides.</div>`},
+ {topic:'tri',front:`<h2>What do the three angles of any triangle add up to?</h2>`,
+  back:`<h2>Always 180°</h2><p>Drag the blue dots to change the triangle. The total never changes!</p>${V('tri')}`},
+ {topic:'tri',front:`<h2>In an isosceles triangle, which two angles are equal? Can congruence prove it?</h2>`,
+  back:`<h2>The two base angles are equal</h2><p>Join the top A to M, the middle of the base. This makes two triangles that are congruent:</p>${V('iso')}`},
+
+ {topic:'quad',front:`<h2>What do the four angles of a quadrilateral add up to?</h2><p class="hint">Hint: how many triangles fit inside?</p>`,
+  back:`<h2>360°</h2><p>Drag the corners — the sum stays 360°.</p>${V('free','',' data-mode="sum"')}`},
+ {topic:'quad',front:`<h2>What are the properties of a <b>parallelogram</b>?</h2>`,
+  back:`<h2>Parallelogram</h2><ul><li>Opposite sides are <b>parallel</b> and <b>equal</b></li><li>Opposite angles are <b>equal</b></li><li>Angles next to each other add to <b>180°</b></li><li>Diagonals <b>bisect</b> each other (cut each other in half)</li></ul>${V('quad','parallelogram')}`},
+ {topic:'quad',front:`<h2>What are the properties of a <b>rectangle</b>?</h2>`,
+  back:`<h2>Rectangle</h2><p>Everything a parallelogram has, <b>plus</b>:</p><ul><li>All four angles are <b>90°</b></li><li>Diagonals are <b>equal</b> in length (and bisect each other)</li></ul>${V('quad','rectangle')}<p class="hint">Tick “Diagonals” to check!</p>`},
+ {topic:'quad',front:`<h2>What are the properties of a <b>rhombus</b>?</h2>`,
+  back:`<h2>Rhombus</h2><p>A parallelogram with <b>four equal sides</b>. Also:</p><ul><li>Opposite angles are equal</li><li>Diagonals bisect each other at <b>right angles (90°)</b></li><li>Diagonals cut the corner angles in half</li></ul>${V('quad','rhombus')}`},
+ {topic:'quad',front:`<h2>What are the properties of a <b>square</b>?</h2>`,
+  back:`<h2>Square — the “everything” shape</h2><ul><li>4 equal sides and 4 right angles</li><li>Opposite sides parallel</li><li>Diagonals are <b>equal</b>, <b>bisect</b> each other and meet at <b>90°</b></li></ul>${V('quad','square')}`},
+ {topic:'quad',front:`<h2>What is a <b>trapezium</b>?</h2>`,
+  back:`<h2>Trapezium</h2><ul><li>Has <b>at least one pair of parallel sides</b> (the arrows)</li><li>Angles between the parallel sides on the same leg add to <b>180°</b></li></ul>${V('quad','trapezium')}<p class="hint">Some books say “exactly one pair” — check which your teacher uses. Slide the top so the slanted sides match to get an <b>isosceles trapezium</b>.</p>`},
+ {topic:'quad',front:`<h2>What are the properties of a <b>kite</b>?</h2>`,
+  back:`<h2>Kite</h2><ul><li>Two pairs of <b>equal sides next to each other</b></li><li>One pair of opposite angles is equal (∠B = ∠D)</li><li>Diagonals meet at <b>90°</b></li><li>The long diagonal cuts the short one in half</li></ul>${V('quad','kite')}`},
+ {topic:'quad',front:`<h2>Is every square a rectangle? Is every rectangle a square?</h2>`,
+  back:`<h2>Yes… and no!</h2><p>Every square <b>is</b> a rectangle (it has four right angles). But a rectangle is only a square if all its sides are equal.</p>${V('tree')}`},
+ {topic:'quad',front:`<h2>Which quadrilaterals have diagonals that cross at <b>right angles</b>?</h2>`,
+  back:`<h2>Rhombus, square and kite</h2><table><tr><th></th><th>Bisect each other</th><th>Equal length</th><th>Meet at 90°</th></tr><tr><td>Parallelogram</td><td>✓</td><td>✗</td><td>✗</td></tr><tr><td>Rectangle</td><td>✓</td><td>✓</td><td>✗</td></tr><tr><td>Rhombus</td><td>✓</td><td>✗</td><td>✓</td></tr><tr><td>Square</td><td>✓</td><td>✓</td><td>✓</td></tr><tr><td>Kite</td><td>one only</td><td>✗</td><td>✓</td></tr></table>`},
+ {topic:'quad',front:`<h2>How can congruent triangles prove that opposite sides of a parallelogram are equal?</h2>`,
+  back:`<h2>Split it with a diagonal</h2>${V('proof')}`},
+ {topic:'quad',front:`<h2>Shape detective 🔍</h2><p class="big">Flip the card and drag the corners. Can you make all six special quadrilaterals?</p><p class="hint">Square, rectangle, rhombus, parallelogram, trapezium, kite</p>`,
+  back:`<h2>Make each shape</h2>${V('free','',' data-mode="detect"')}<p class="hint">Tip: arrows = parallel sides, ticks = equal sides, little squares = right angles.</p>`},
+
+ {topic:'prac',front:`<h2>△ABC ≅ △XYZ</h2><p class="big">AB = 7 cm and ∠B = 50°.<br>Find <b>XY</b> and <b>∠Y</b>.</p>`,
+  back:`<h2>XY = 7 cm, ∠Y = 50°</h2><p>Match the letters in order: A↔X, B↔Y, C↔Z.</p><p>AB matches <b>XY</b>, and ∠B matches <b>∠Y</b>. Corresponding parts of congruent triangles are equal.</p>`},
+ {topic:'prac',front:`<h2>Which test shows these triangles are congruent?</h2>${V('pair','p_sas')}`,
+  back:`<h2>SAS</h2>${V('pair','p_sas',' data-steps="1"')}`},
+ {topic:'prac',front:`<h2>Which test shows these triangles are congruent?</h2>${V('pair','p_rhs')}`,
+  back:`<h2>RHS</h2>${V('pair','p_rhs',' data-steps="1"')}`},
+ {topic:'prac',front:`<h2>Trick question: are these triangles definitely congruent?</h2>${V('pair','p_ssa')}`,
+  back:`<h2>No — not enough information</h2>${V('pair','p_ssa',' data-steps="1"')}<p>The marked angle (∠A) is not between the two marked sides, so this is <b>SSA</b>. SSA can make two different triangles.</p>`},
+ {topic:'prac',front:`<h2>ABCD is a parallelogram. ∠A = 65°. Find the other angles.</h2>${V('qs','q_par',' data-side="front"')}`,
+  back:`<h2>∠B = 115°, ∠C = 65°, ∠D = 115°</h2>${V('qs','q_par',' data-side="back"')}<ul><li>Opposite angles are equal → ∠C = 65°</li><li>Neighbouring angles add to 180° → ∠B = 180° − 65° = 115°</li><li>∠D = ∠B = 115°</li></ul><p class="hint">Check: 65 + 115 + 65 + 115 = 360 ✓</p>`},
+ {topic:'prac',front:`<h2>ABCD is a rectangle. Diagonal AC = 10 cm.</h2><p class="big">Find <b>BD</b> and <b>AO</b>.</p>${V('qs','q_rect',' data-side="front"')}`,
+  back:`<h2>BD = 10 cm, AO = 5 cm</h2><ul><li>A rectangle's diagonals are <b>equal</b> → BD = 10 cm</li><li>The diagonals <b>bisect</b> each other → AO = 10 ÷ 2 = 5 cm</li></ul>`},
+ {topic:'prac',front:`<h2>ABCD is a rhombus. ∠A = 70°.</h2><p class="big">Find the other angles, and the angle where the diagonals meet.</p>${V('qs','q_rh',' data-side="front"')}`,
+  back:`<h2>110°, 70°, 110° — and diagonals meet at 90°</h2>${V('qs','q_rh',' data-side="back"')}<p>A rhombus is a parallelogram, so opposite angles are equal and neighbours add to 180°. Its diagonals always cross at right angles.</p>`},
+ {topic:'prac',front:`<h2>Find x.</h2>${V('qs','q_sum',' data-side="front"')}`,
+  back:`<h2>x = 70°</h2>${V('qs','q_sum',' data-side="back"')}<p>Angles in a quadrilateral add to 360°.</p><p class="big">x = 360 − (85 + 95 + 110) = 360 − 290 = <b>70°</b></p>`}
+];
+const TOPIC={tri:'Triangles',quad:'Quadrilaterals',prac:'Practice'};
+
+/* ---------- app ---------- */
+const KEY='congruence-cards-v1';let status={};
+try{status=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){status={};}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(status));}catch(e){}};
+let filter='all',reviewOnly=false,shuffled=false,deck=[],pos=0,back=false;
+const cardEl=document.getElementById('card');
+function buildDeck(){deck=CARDS.map((c,i)=>i).filter(i=>(filter==='all'||CARDS[i].topic===filter)&&(!reviewOnly||status[i]!=='know'));
+  if(shuffled)for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}pos=0;back=false;render();}
+function initViz(root){root.querySelectorAll('.viz').forEach(v=>{const f=VIZ[v.dataset.viz];if(!f)return;
+  if(v.dataset.viz==='free')f(v,v.dataset.mode);else if(v.dataset.viz==='qs')f(v,v.dataset.cfg,v.dataset.side);else f(v,v.dataset.cfg,v.dataset.steps==='1');});}
+function render(){
+  const k=Object.values(status).filter(s=>s==='know').length;
+  document.getElementById('bar').style.width=(k/CARDS.length*100)+'%';
+  document.getElementById('ptext').textContent=`${k} of ${CARDS.length} known`;
+  if(!deck.length){cardEl.className='card';cardEl.innerHTML=`<div class="empty"><h2>🎉 Nothing left here!</h2><p>You've marked every card in this set as known. Turn off “Tricky ones only” or reset to study again.</p></div>`;document.getElementById('count').textContent='';return;}
+  const i=deck[pos],c=CARDS[i];
+  cardEl.className='card'+(back?' back':'');
+  cardEl.innerHTML=`<span class="badge">${back?'Answer':'Question'}</span><span class="topic">${TOPIC[c.topic]}${status[i]==='know'?' · ✓ known':status[i]==='learn'?' · ↻ learning':''}</span>`+(back?c.back:c.front)+
+    (back?`<div class="rate"><button class="l" data-r="learn">↻ Still learning</button><button class="k" data-r="know">✓ Got it!</button></div>`:`<span class="tap">tap to flip</span>`);
+  initViz(cardEl);
+  cardEl.querySelectorAll('[data-r]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();status[i]=b.dataset.r;save();
+    if(reviewOnly&&b.dataset.r==='know'){deck.splice(pos,1);if(pos>=deck.length)pos=0;back=false;render();}else move(1);}));
+  document.getElementById('count').textContent=`${pos+1} / ${deck.length}`;
+}
+function flip(){if(!deck.length)return;
+  if(!cardEl.animate){back=!back;render();return;}
+  cardEl.animate([{transform:'scaleX(1)'},{transform:'scaleX(0)'}],{duration:130,easing:'ease-in'}).onfinish=()=>{back=!back;render();cardEl.animate([{transform:'scaleX(0)'},{transform:'scaleX(1)'}],{duration:150,easing:'ease-out'});};}
+function move(d){if(!deck.length)return;pos=(pos+d+deck.length)%deck.length;back=false;render();window.scrollTo({top:0,behavior:'smooth'});}
+cardEl.addEventListener('click',e=>{if(e.target.closest('.viz,button,input,label,a,table'))return;flip();});
+document.getElementById('flip').onclick=flip;
+document.getElementById('next').onclick=()=>move(1);
+document.getElementById('prev').onclick=()=>move(-1);
+document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+  if(e.key==='ArrowRight')move(1);else if(e.key==='ArrowLeft')move(-1);else if(e.key===' '||e.key==='Enter'){if(e.target.tagName==='BUTTON'&&e.target.id!=='card')return;e.preventDefault();flip();}});
+document.querySelectorAll('#chips button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#chips button').forEach(x=>x.classList.remove('on'));b.classList.add('on');filter=b.dataset.f;buildDeck();});
+document.getElementById('shuffle').onclick=e=>{shuffled=!shuffled;e.currentTarget.classList.toggle('on',shuffled);buildDeck();};
+document.getElementById('review').onclick=e=>{reviewOnly=!reviewOnly;e.currentTarget.classList.toggle('on',reviewOnly);buildDeck();};
+document.getElementById('resetp').onclick=()=>{if(confirm('Clear your progress?')){status={};save();buildDeck();}};
+buildDeck();
+</script>
+</body>
+</html>
